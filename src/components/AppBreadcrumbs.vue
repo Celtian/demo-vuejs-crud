@@ -42,7 +42,7 @@ const breadcrumbs = computed<Breadcrumb[]>(() => {
 <template>
   <nav class="bg-slate-50" :aria-label="t('breadcrumbs.label')">
     <ol
-      class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 text-sm font-medium text-blue-700 sm:px-6 lg:px-8"
+      class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 text-sm font-medium text-sky-700 sm:px-6 lg:px-8"
     >
       <li v-for="(breadcrumb, index) in breadcrumbs" :key="`${breadcrumb.label}-${index}`">
         <div class="flex items-center gap-3">
@@ -51,7 +51,7 @@ const breadcrumbs = computed<Breadcrumb[]>(() => {
           <RouterLink
             v-if="breadcrumb.to && index < breadcrumbs.length - 1"
             :to="breadcrumb.to"
-            class="rounded-md px-3 py-2 transition-colors hover:bg-white hover:text-blue-900 hover:shadow-sm"
+            class="rounded-md px-3 py-2 transition-colors hover:bg-white hover:text-sky-900 hover:shadow-sm"
           >
             {{ breadcrumb.label }}
           </RouterLink>

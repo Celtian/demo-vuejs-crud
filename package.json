@@ -2,6 +2,13 @@
   "name": "demo-vuejs-crud",
   "version": "0.0.0",
   "private": true,
+  "description": "Vue.js CRUD demo application using JSONPlaceholder posts.",
+  "license": "MIT",
+  "author": {
+    "name": "Dominik Hladík",
+    "email": "dominik.hladik@seznam.cz",
+    "url": "https://github.com/Celtian"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
