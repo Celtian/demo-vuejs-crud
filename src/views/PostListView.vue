@@ -3,14 +3,19 @@ import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PaginationControls from '@/components/PaginationControls.vue'
 import PostTable from '@/components/posts/PostTable.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
 import { usePosts } from '@/composables/usePosts'
 
 const searchDebounceMs = 350
 const itemsPerPageOptions = [5, 10, 25] as const
-const { posts, postCount, isLoading, errorMessage, loadPosts } = usePosts()
+const { posts, postCount, isLoading, errorMessage, loadPosts, removePost } = usePosts()
 const route = useRoute()
 const router = useRouter()
 const searchInput = shallowRef('')
+const pendingDeletePostId = shallowRef<number>()
+const isDeletingPost = shallowRef(false)
 let searchDebounceId: ReturnType<typeof setTimeout> | undefined
 
 function getQueryValue(value: unknown) {
@@ -31,6 +36,15 @@ const searchQuery = computed(() => String(getQueryValue(route.query.query) ?? ''
 const pageIndex = computed(() => getPositiveNumber(route.query.pageIndex, 1))
 const pageSize = computed(() => getPositiveNumber(route.query.pageSize, 5))
 const isInitialLoading = computed(() => isLoading.value && posts.value.length === 0)
+const hasQueryParams = computed(() => Object.keys(route.query).length > 0)
+const isDeleteModalOpen = computed({
+  get: () => pendingDeletePostId.value !== undefined,
+  set: (open) => {
+    if (!open) {
+      pendingDeletePostId.value = undefined
+    }
+  },
+})
 
 watch(
   searchQuery,
@@ -74,6 +88,31 @@ function changeItemsPerPage(limit: number) {
   void updateListQuery({ pageIndex: 1, pageSize: limit })
 }
 
+function requestDeletePost(id: number) {
+  pendingDeletePostId.value = id
+}
+
+function cancelDeletePost() {
+  pendingDeletePostId.value = undefined
+}
+
+async function confirmDeletePost() {
+  const postId = pendingDeletePostId.value
+
+  if (postId === undefined || isDeletingPost.value) {
+    return
+  }
+
+  isDeletingPost.value = true
+
+  try {
+    await removePost(postId)
+    pendingDeletePostId.value = undefined
+  } finally {
+    isDeletingPost.value = false
+  }
+}
+
 function changeSearchQuery(event: Event) {
   searchInput.value = (event.target as HTMLInputElement).value
 
@@ -86,6 +125,13 @@ function changeSearchQuery(event: Event) {
   }, searchDebounceMs)
 }
 
+async function clearQueryParams() {
+  clearTimeout(searchDebounceId)
+  searchInput.value = ''
+
+  await router.replace({ query: {} })
+}
+
 onBeforeUnmount(() => {
   clearTimeout(searchDebounceId)
 })
@@ -93,30 +139,25 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="space-y-6">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <p class="text-sm font-medium text-sky-700">{{ postCount }} posts</p>
-        <h1 class="mt-1 text-2xl font-semibold text-slate-950">Posts</h1>
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <div class="space-y-2">
+        <label for="post-search" class="block text-sm font-medium text-slate-700">Search</label>
+        <BaseInput
+          id="post-search"
+          v-model="searchInput"
+          type="search"
+          class="max-w-md"
+          placeholder="Search by title or body"
+          @input="changeSearchQuery"
+        />
       </div>
 
-      <RouterLink
-        to="/create"
-        class="inline-flex h-10 items-center justify-center rounded-md bg-sky-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
-      >
-        Create post
-      </RouterLink>
-    </div>
-
-    <div class="space-y-2">
-      <label for="post-search" class="block text-sm font-medium text-slate-700">Search</label>
-      <input
-        id="post-search"
-        :value="searchInput"
-        type="search"
-        class="block w-full max-w-md rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
-        placeholder="Search by title or body"
-        @input="changeSearchQuery"
-      />
+      <div class="flex items-center justify-end gap-8 pt-7">
+        <BaseButton variant="link" :disabled="!hasQueryParams" @click="clearQueryParams">
+          Clear filters
+        </BaseButton>
+        <BaseButton to="/create" variant="link"> Create </BaseButton>
+      </div>
     </div>
 
     <p
@@ -126,15 +167,13 @@ onBeforeUnmount(() => {
       {{ errorMessage }}
     </p>
 
-    <p
-      v-else-if="isInitialLoading"
-      class="rounded-md border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500"
-    >
-      Loading posts...
-    </p>
-
-    <div v-else class="space-y-3">
-      <PostTable :posts="posts" />
+    <div v-else class="rounded-md border border-slate-200 bg-white shadow-sm">
+      <PostTable
+        :posts="posts"
+        :is-loading="isInitialLoading"
+        :skeleton-rows="pageSize"
+        @delete="requestDeletePost"
+      />
       <PaginationControls
         :page="pageIndex"
         :items-per-page="pageSize"
@@ -145,5 +184,14 @@ onBeforeUnmount(() => {
         @items-per-page-change="changeItemsPerPage"
       />
     </div>
+
+    <ConfirmModal
+      v-model="isDeleteModalOpen"
+      title="Delete post"
+      message="Do you want to delete post?"
+      :is-confirming="isDeletingPost"
+      @cancel="cancelDeletePost"
+      @confirm="confirmDeletePost"
+    />
   </section>
 </template>

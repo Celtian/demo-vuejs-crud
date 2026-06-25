@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseButton from '@/components/ui/BaseButton.vue'
+
 export type Locale = 'cs' | 'en'
 
 defineProps<{
@@ -13,12 +15,7 @@ function switchLocale() {
 </script>
 
 <template>
-  <button
-    type="button"
-    class="inline-flex h-9 cursor-pointer items-center rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-sky-700 shadow-sm transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
-    :aria-label="label"
-    @click="switchLocale"
-  >
+  <BaseButton variant="secondary" size="sm" :aria-label="label" @click="switchLocale">
     {{ locale.toUpperCase() }}
-  </button>
+  </BaseButton>
 </template>

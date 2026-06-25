@@ -66,7 +66,7 @@ watch(locale, (nextLocale) => {
     </main>
 
     <footer class="border-t border-slate-200 bg-white">
-      <div class="mx-auto max-w-6xl px-4 py-4 text-sm text-slate-600 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-6xl px-4 py-4 text-center text-sm text-slate-600 sm:px-6 lg:px-8">
         {{ currentMessages.rights }}
       </div>
     </footer>

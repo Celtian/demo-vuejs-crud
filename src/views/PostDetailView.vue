@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import { usePosts, type ExpandedPost } from '@/composables/usePosts'
 
 const route = useRoute()
@@ -47,20 +48,10 @@ async function deleteCurrentPost() {
       </div>
 
       <div class="flex gap-2">
-        <RouterLink
-          :to="`/${post.id}/edit`"
-          class="inline-flex h-10 items-center justify-center rounded-md bg-sky-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
-        >
-          Edit post
-        </RouterLink>
-        <button
-          type="button"
-          class="inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-rose-200 bg-white px-4 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50"
-          :disabled="isDeleting"
-          @click="deleteCurrentPost"
-        >
+        <BaseButton :to="`/${post.id}/edit`"> Edit post </BaseButton>
+        <BaseButton variant="danger" :disabled="isDeleting" @click="deleteCurrentPost">
           {{ isDeleting ? 'Deleting...' : 'Delete' }}
-        </button>
+        </BaseButton>
       </div>
     </div>
 

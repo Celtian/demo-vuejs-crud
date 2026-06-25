@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseSelect from '@/components/ui/BaseSelect.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -32,8 +34,8 @@ const lastItem = computed(() => Math.min(props.page * props.itemsPerPage, props.
 const canGoBack = computed(() => props.page > 1)
 const canGoForward = computed(() => props.page < totalPages.value)
 
-function changeItemsPerPage(event: Event) {
-  emit('itemsPerPageChange', Number((event.target as HTMLSelectElement).value))
+function changeItemsPerPage(value: string | number) {
+  emit('itemsPerPageChange', Number(value))
 }
 
 function goToPreviousPage() {
@@ -56,16 +58,15 @@ function goToNextPage() {
   >
     <label class="flex items-center gap-3">
       <span>Items per page</span>
-      <select
-        :value="itemsPerPage"
+      <BaseSelect
+        :model-value="itemsPerPage"
         :disabled="disabled"
-        class="h-12 min-w-24 rounded-md border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition-colors focus:border-sky-500 focus:ring-2 focus:ring-sky-200 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-        @change="changeItemsPerPage"
+        @update:model-value="changeItemsPerPage"
       >
         <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
           {{ option }}
         </option>
-      </select>
+      </BaseSelect>
     </label>
 
     <p class="min-w-32 text-center sm:text-left">
@@ -73,25 +74,25 @@ function goToNextPage() {
     </p>
 
     <div class="flex items-center justify-end gap-4">
-      <button
-        type="button"
-        class="flex size-10 cursor-pointer items-center justify-center rounded-md text-3xl leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
+      <BaseButton
+        variant="ghost"
+        size="icon"
         :disabled="disabled || !canGoBack"
         aria-label="Previous page"
         @click="goToPreviousPage"
       >
         &lt;
-      </button>
+      </BaseButton>
 
-      <button
-        type="button"
-        class="flex size-10 cursor-pointer items-center justify-center rounded-md text-3xl leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
+      <BaseButton
+        variant="ghost"
+        size="icon"
         :disabled="disabled || !canGoForward"
         aria-label="Next page"
         @click="goToNextPage"
       >
         &gt;
-      </button>
+      </BaseButton>
     </div>
   </nav>
 </template>
