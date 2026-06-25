@@ -4,7 +4,9 @@ import { useRoute } from 'vue-router'
 import LanguageSwitch, { type Locale } from './components/LanguageSwitch.vue'
 import { fallbackMessages, messagesKey, type Messages } from './composables/useTranslations'
 
-const locale = ref<Locale>('cs')
+const localeStorageKey = 'demo-vuejs-crud-locale'
+const supportedLocales = ['cs', 'en'] as const
+const locale = ref<Locale>(getStoredLocale())
 const route = useRoute() as ReturnType<typeof useRoute> | undefined
 const messagesCache = new Map<Locale, Messages>()
 const currentMessages = ref<Messages>(fallbackMessages)
@@ -17,6 +19,16 @@ const routeTitleKeys = {
 } as const
 
 provide(messagesKey, currentMessages)
+
+function getStoredLocale(): Locale {
+  const storedLocale = localStorage.getItem(localeStorageKey)
+
+  if (supportedLocales.includes(storedLocale as Locale)) {
+    return storedLocale as Locale
+  }
+
+  return 'cs'
+}
 
 const documentTitle = computed(() => {
   const routeName = typeof route?.name === 'string' ? route.name : 'post-list'
@@ -54,6 +66,7 @@ onMounted(() => {
 })
 
 watch(locale, (nextLocale) => {
+  localStorage.setItem(localeStorageKey, nextLocale)
   void loadMessages(nextLocale)
 })
 
