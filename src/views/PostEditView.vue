@@ -1,18 +1,29 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PostForm from '@/components/posts/PostForm.vue'
-import { usePosts, type PostInput } from '@/composables/usePosts'
+import { usePosts, type Post, type PostInput } from '@/composables/usePosts'
 
 const route = useRoute()
 const router = useRouter()
 const { findPost, updatePost } = usePosts()
 
 const postId = computed(() => Number(route.params.id))
-const post = computed(() => findPost(postId.value))
+const post = shallowRef<Post>()
+const isLoading = shallowRef(false)
+
+watch(
+  postId,
+  async (id) => {
+    isLoading.value = true
+    post.value = await findPost(id)
+    isLoading.value = false
+  },
+  { immediate: true },
+)
 
 async function submitPost(input: PostInput) {
-  const updatedPost = updatePost(postId.value, input)
+  const updatedPost = await updatePost(postId.value, input)
 
   if (!updatedPost) {
     return
@@ -23,7 +34,11 @@ async function submitPost(input: PostInput) {
 </script>
 
 <template>
-  <section v-if="post" class="mx-auto max-w-2xl space-y-6">
+  <section v-if="isLoading" class="mx-auto max-w-2xl space-y-4 text-center">
+    <p class="text-sm text-slate-500">Loading post...</p>
+  </section>
+
+  <section v-else-if="post" class="mx-auto max-w-2xl space-y-6">
     <div>
       <p class="text-sm font-medium text-sky-700">Post #{{ post.id }}</p>
       <h1 class="mt-1 text-2xl font-semibold text-slate-950">Edit post</h1>

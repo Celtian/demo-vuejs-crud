@@ -1,25 +1,29 @@
 <script setup lang="ts">
-import { computed, shallowRef } from 'vue'
+import { shallowRef, watch } from 'vue'
 import PostTable from '@/components/posts/PostTable.vue'
 import { usePosts } from '@/composables/usePosts'
+import type { PostListInput } from '@/api/posts'
 
 const searchQuery = shallowRef('')
-const { posts, postCount } = usePosts()
+const { posts, postCount, isLoading, errorMessage, loadPosts } = usePosts()
 
-const filteredPosts = computed(() => {
-  const query = searchQuery.value.trim().toLocaleLowerCase()
+const listInput = {
+  page: 1,
+  limit: 10,
+  sort: 'id',
+  order: 'asc',
+} satisfies Omit<PostListInput, 'query'>
 
-  if (!query) {
-    return posts.value
-  }
-
-  return posts.value.filter((post) => {
-    return (
-      post.title.toLocaleLowerCase().includes(query) ||
-      post.body.toLocaleLowerCase().includes(query)
-    )
-  })
-})
+watch(
+  searchQuery,
+  async (query) => {
+    await loadPosts({
+      ...listInput,
+      query,
+    })
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -49,6 +53,20 @@ const filteredPosts = computed(() => {
       />
     </div>
 
-    <PostTable :posts="filteredPosts" />
+    <p
+      v-if="errorMessage"
+      class="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+    >
+      {{ errorMessage }}
+    </p>
+
+    <p
+      v-else-if="isLoading"
+      class="rounded-md border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500"
+    >
+      Loading posts...
+    </p>
+
+    <PostTable v-else :posts="posts" />
   </section>
 </template>

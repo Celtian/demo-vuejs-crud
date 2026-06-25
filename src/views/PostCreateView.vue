@@ -7,7 +7,7 @@ const router = useRouter()
 const { createPost } = usePosts()
 
 async function submitPost(input: PostInput) {
-  const post = createPost(input)
+  const post = await createPost(input)
 
   await router.push(`/${post.id}`)
 }
