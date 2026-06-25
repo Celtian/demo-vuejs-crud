@@ -1,0 +1,4 @@
+{
+  "src/**/*.{vue,ts,tsx,js,jsx}": ["oxfmt --write", "oxlint --fix", "eslint --fix --cache"],
+  "*.{json,md,html,css,scss}": "oxfmt --write"
+}
