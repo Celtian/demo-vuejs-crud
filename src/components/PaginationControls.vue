@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
+import { useTranslations } from '@/composables/useTranslations'
 
 const props = withDefaults(
   defineProps<{
@@ -22,6 +23,7 @@ const emit = defineEmits<{
   itemsPerPageChange: [itemsPerPage: number]
 }>()
 
+const { t } = useTranslations()
 const totalPages = computed(() => Math.max(Math.ceil(props.totalItems / props.itemsPerPage), 1))
 const firstItem = computed(() => {
   if (props.totalItems === 0) {
@@ -54,10 +56,10 @@ function goToNextPage() {
 <template>
   <nav
     class="flex flex-col gap-4 border-t border-slate-200 bg-white px-4 py-4 text-sm text-slate-950 sm:flex-row sm:items-center sm:justify-end sm:gap-10"
-    aria-label="Pagination"
+    :aria-label="t('pagination.label')"
   >
     <label class="flex items-center gap-3">
-      <span>Items per page</span>
+      <span>{{ t('pagination.itemsPerPage') }}</span>
       <BaseSelect
         :model-value="itemsPerPage"
         :disabled="disabled"
@@ -70,7 +72,7 @@ function goToNextPage() {
     </label>
 
     <p class="min-w-32 text-center sm:text-left">
-      {{ firstItem }} - {{ lastItem }} from {{ totalItems }}
+      {{ t('pagination.range', { first: firstItem, last: lastItem, total: totalItems }) }}
     </p>
 
     <div class="flex items-center justify-end gap-4">
@@ -78,7 +80,7 @@ function goToNextPage() {
         variant="ghost"
         size="icon"
         :disabled="disabled || !canGoBack"
-        aria-label="Previous page"
+        :aria-label="t('pagination.previousPage')"
         @click="goToPreviousPage"
       >
         &lt;
@@ -88,7 +90,7 @@ function goToNextPage() {
         variant="ghost"
         size="icon"
         :disabled="disabled || !canGoForward"
-        aria-label="Next page"
+        :aria-label="t('pagination.nextPage')"
         @click="goToNextPage"
       >
         &gt;

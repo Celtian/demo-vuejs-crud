@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onBeforeUnmount, useId, watch } from 'vue'
+import { computed, onBeforeUnmount, useId, watch } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useTranslations } from '@/composables/useTranslations'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string
     message: string
@@ -11,8 +12,6 @@ withDefaults(
     isConfirming?: boolean
   }>(),
   {
-    confirmLabel: 'Yes',
-    cancelLabel: 'No',
     isConfirming: false,
   },
 )
@@ -24,6 +23,9 @@ const emit = defineEmits<{
 
 const isOpen = defineModel<boolean>({ required: true })
 const titleId = useId()
+const { t } = useTranslations()
+const cancelText = computed(() => props.cancelLabel ?? t('common.no'))
+const confirmText = computed(() => props.confirmLabel ?? t('common.yes'))
 
 function cancel() {
   if (!isOpen.value) {
@@ -81,10 +83,10 @@ onBeforeUnmount(() => {
 
         <footer class="flex justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4">
           <BaseButton variant="secondary" :disabled="isConfirming" @click="cancel">
-            {{ cancelLabel }}
+            {{ cancelText }}
           </BaseButton>
           <BaseButton variant="secondary" :disabled="isConfirming" @click="confirm">
-            {{ confirmLabel }}
+            {{ confirmText }}
           </BaseButton>
         </footer>
       </section>

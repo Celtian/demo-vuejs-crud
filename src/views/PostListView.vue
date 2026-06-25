@@ -7,10 +7,12 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { usePosts } from '@/composables/usePosts'
+import { useTranslations } from '@/composables/useTranslations'
 
 const searchDebounceMs = 350
 const itemsPerPageOptions = [5, 10, 25] as const
 const { posts, postCount, isLoading, errorMessage, loadPosts, removePost } = usePosts()
+const { t } = useTranslations()
 const route = useRoute()
 const router = useRouter()
 const searchInput = shallowRef('')
@@ -141,22 +143,24 @@ onBeforeUnmount(() => {
   <section class="space-y-6">
     <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
       <div class="space-y-2">
-        <label for="post-search" class="block text-sm font-medium text-slate-700">Search</label>
+        <label for="post-search" class="block text-sm font-medium text-slate-700">
+          {{ t('postList.search') }}
+        </label>
         <BaseInput
           id="post-search"
           v-model="searchInput"
           type="search"
           class="max-w-md"
-          placeholder="Search by title or body"
+          :placeholder="t('postList.searchPlaceholder')"
           @input="changeSearchQuery"
         />
       </div>
 
       <div class="flex items-center justify-end gap-8 pt-7">
         <BaseButton variant="link" :disabled="!hasQueryParams" @click="clearQueryParams">
-          Clear filters
+          {{ t('actions.clearFilters') }}
         </BaseButton>
-        <BaseButton to="/create" variant="link"> Create </BaseButton>
+        <BaseButton to="/create" variant="link"> {{ t('actions.create') }} </BaseButton>
       </div>
     </div>
 
@@ -164,7 +168,7 @@ onBeforeUnmount(() => {
       v-if="errorMessage"
       class="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
     >
-      {{ errorMessage }}
+      {{ t('errors.loadPosts') }}
     </p>
 
     <div v-else class="rounded-md border border-slate-200 bg-white shadow-sm">
@@ -187,8 +191,8 @@ onBeforeUnmount(() => {
 
     <ConfirmModal
       v-model="isDeleteModalOpen"
-      title="Delete post"
-      message="Do you want to delete post?"
+      :title="t('confirm.deletePost.title')"
+      :message="t('confirm.deletePost.message')"
       :is-confirming="isDeletingPost"
       @cancel="cancelDeletePost"
       @confirm="confirmDeletePost"

@@ -3,6 +3,7 @@ import { shallowRef } from 'vue'
 import PostActionsDropdown from '@/components/posts/PostActionsDropdown.vue'
 import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import type { Post } from '@/composables/usePosts'
+import { useTranslations } from '@/composables/useTranslations'
 
 withDefaults(
   defineProps<{
@@ -21,6 +22,7 @@ const emit = defineEmits<{
 }>()
 
 const openActionsPostId = shallowRef<number>()
+const { t } = useTranslations()
 
 function deletePost(id: number) {
   emit('delete', id)
@@ -32,9 +34,9 @@ function deletePost(id: number) {
     <table class="min-w-full table-fixed divide-y divide-slate-200 text-sm">
       <thead class="bg-slate-100 text-left text-xs font-semibold uppercase text-slate-600">
         <tr>
-          <th class="w-1/3 px-4 py-3">Title</th>
-          <th class="px-4 py-3">Body</th>
-          <th class="w-32 px-4 py-3 text-right">Actions</th>
+          <th class="w-1/3 px-4 py-3">{{ t('table.title') }}</th>
+          <th class="px-4 py-3">{{ t('table.body') }}</th>
+          <th class="w-32 px-4 py-3 text-right">{{ t('table.actions') }}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-200">
@@ -79,7 +81,9 @@ function deletePost(id: number) {
         </template>
 
         <tr v-if="!isLoading && posts.length === 0">
-          <td colspan="3" class="px-4 py-8 text-center text-slate-500">No posts found.</td>
+          <td colspan="3" class="px-4 py-8 text-center text-slate-500">
+            {{ t('postList.noPosts') }}
+          </td>
         </tr>
       </tbody>
     </table>

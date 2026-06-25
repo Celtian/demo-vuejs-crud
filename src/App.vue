@@ -1,21 +1,33 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, provide, ref, watch, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import LanguageSwitch, { type Locale } from './components/LanguageSwitch.vue'
+import { fallbackMessages, messagesKey, type Messages } from './composables/useTranslations'
 
 const locale = ref<Locale>('cs')
-
-type Messages = {
-  rights: string
-  switchLanguage: string
-}
-
-const fallbackMessages: Messages = {
-  rights: '',
-  switchLanguage: 'Switch language',
-}
-
+const route = useRoute() as ReturnType<typeof useRoute> | undefined
 const messagesCache = new Map<Locale, Messages>()
 const currentMessages = ref<Messages>(fallbackMessages)
+const routeTitleKeys = {
+  'post-list': 'title.list',
+  'post-create': 'title.create',
+  'post-detail': 'title.detail',
+  'post-edit': 'title.edit',
+  'not-found': 'title.notFound',
+} as const
+
+provide(messagesKey, currentMessages)
+
+const documentTitle = computed(() => {
+  const routeName = typeof route?.name === 'string' ? route.name : 'post-list'
+  const titleKey = routeTitleKeys[routeName as keyof typeof routeTitleKeys] ?? 'title.notFound'
+
+  return appMessage(titleKey)
+})
+
+function appMessage(key: string) {
+  return currentMessages.value[key] ?? fallbackMessages[key] ?? key
+}
 
 async function loadMessages(nextLocale: Locale) {
   const cachedMessages = messagesCache.get(nextLocale)
@@ -44,6 +56,11 @@ onMounted(() => {
 watch(locale, (nextLocale) => {
   void loadMessages(nextLocale)
 })
+
+watchEffect(() => {
+  document.documentElement.lang = locale.value
+  document.title = documentTitle.value
+})
 </script>
 
 <template>
@@ -54,10 +71,10 @@ watch(locale, (nextLocale) => {
           to="/"
           class="text-base font-semibold text-slate-950 transition-colors hover:text-sky-700"
         >
-          CRUD Demo
+          {{ appMessage('app.title') }}
         </RouterLink>
 
-        <LanguageSwitch v-model="locale" :label="currentMessages.switchLanguage" />
+        <LanguageSwitch v-model="locale" :label="appMessage('language.switch')" />
       </nav>
     </header>
 
@@ -67,7 +84,7 @@ watch(locale, (nextLocale) => {
 
     <footer class="border-t border-slate-200 bg-white">
       <div class="mx-auto max-w-6xl px-4 py-4 text-center text-sm text-slate-600 sm:px-6 lg:px-8">
-        {{ currentMessages.rights }}
+        {{ appMessage('app.rights') }}
       </div>
     </footer>
   </div>

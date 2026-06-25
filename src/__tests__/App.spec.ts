@@ -5,12 +5,18 @@ import App from '../App.vue'
 
 const messagesByUrl: Record<string, object> = {
   '/assets/i18n/cs.json': {
-    rights: 'Všechna práva vyhrazena © 2026',
-    switchLanguage: 'Přepnout jazyk',
+    'app.rights': 'Všechna práva vyhrazena © 2026',
+    'app.title': 'CRUD Demo',
+    'language.switch': 'Přepnout jazyk',
+    'title.list': 'Příspěvky | CRUD Demo',
+    'title.notFound': 'Stránka nenalezena | CRUD Demo',
   },
   '/assets/i18n/en.json': {
-    rights: 'All rights reserved © 2026',
-    switchLanguage: 'Switch language',
+    'app.rights': 'All rights reserved © 2026',
+    'app.title': 'CRUD Demo',
+    'language.switch': 'Switch language',
+    'title.list': 'Posts | CRUD Demo',
+    'title.notFound': 'Page not found | CRUD Demo',
   },
 }
 
