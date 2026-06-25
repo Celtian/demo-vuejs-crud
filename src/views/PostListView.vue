@@ -10,6 +10,8 @@ import { usePosts } from '@/composables/usePosts'
 import { useTranslations } from '@/composables/useTranslations'
 
 const searchDebounceMs = 350
+const defaultPageIndex = 1
+const defaultPageSize = 5
 const itemsPerPageOptions = [5, 10, 25] as const
 const { posts, postCount, isLoading, errorMessage, loadPosts, removePost } = usePosts()
 const { t } = useTranslations()
@@ -35,8 +37,8 @@ function getPositiveNumber(value: unknown, fallback: number) {
 }
 
 const searchQuery = computed(() => String(getQueryValue(route.query.query) ?? ''))
-const pageIndex = computed(() => getPositiveNumber(route.query.pageIndex, 1))
-const pageSize = computed(() => getPositiveNumber(route.query.pageSize, 5))
+const pageIndex = computed(() => getPositiveNumber(route.query.pageIndex, defaultPageIndex))
+const pageSize = computed(() => getPositiveNumber(route.query.pageSize, defaultPageSize))
 const isInitialLoading = computed(() => isLoading.value && posts.value.length === 0)
 const hasQueryParams = computed(() => Object.keys(route.query).length > 0)
 const isDeleteModalOpen = computed({
@@ -72,12 +74,14 @@ watch(
 
 async function updateListQuery(input: { query?: string; pageIndex?: number; pageSize?: number }) {
   const nextQuery = input.query ?? searchQuery.value
+  const nextPageIndex = input.pageIndex ?? pageIndex.value
+  const nextPageSize = input.pageSize ?? pageSize.value
 
   await router.replace({
     query: {
-      pageSize: String(input.pageSize ?? pageSize.value),
+      pageSize: nextPageSize === defaultPageSize ? undefined : String(nextPageSize),
       query: nextQuery || undefined,
-      pageIndex: String(input.pageIndex ?? pageIndex.value),
+      pageIndex: nextPageIndex === defaultPageIndex ? undefined : String(nextPageIndex),
     },
   })
 }

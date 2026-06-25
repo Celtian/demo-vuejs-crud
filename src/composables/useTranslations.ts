@@ -12,6 +12,8 @@ export const fallbackMessages: Messages = {
   'actions.saveChanges': 'Save changes',
   'app.rights': '',
   'app.title': 'CRUD Demo',
+  'breadcrumbs.label': 'Breadcrumbs',
+  'breadcrumbs.posts': 'Posts',
   'confirm.deletePost.message': 'Do you want to delete post?',
   'confirm.deletePost.title': 'Delete post',
   'common.no': 'No',

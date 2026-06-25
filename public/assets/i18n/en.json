@@ -8,6 +8,8 @@
   "actions.saveChanges": "Save changes",
   "app.rights": "All rights reserved © 2026",
   "app.title": "CRUD Demo",
+  "breadcrumbs.label": "Breadcrumbs",
+  "breadcrumbs.posts": "Posts",
   "confirm.deletePost.message": "Do you want to delete post?",
   "confirm.deletePost.title": "Delete post",
   "common.no": "No",

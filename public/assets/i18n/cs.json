@@ -8,6 +8,8 @@
   "actions.saveChanges": "Uložit změny",
   "app.rights": "Všechna práva vyhrazena © 2026",
   "app.title": "CRUD Demo",
+  "breadcrumbs.label": "Drobečková navigace",
+  "breadcrumbs.posts": "Příspěvky",
   "confirm.deletePost.message": "Chcete smazat příspěvek?",
   "confirm.deletePost.title": "Smazat příspěvek",
   "common.no": "Ne",

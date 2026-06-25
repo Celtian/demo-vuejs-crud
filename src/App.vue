@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, provide, ref, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
+import AppBreadcrumbs from './components/AppBreadcrumbs.vue'
 import LanguageSwitch, { type Locale } from './components/LanguageSwitch.vue'
 import { fallbackMessages, messagesKey, type Messages } from './composables/useTranslations'
 
@@ -90,6 +91,8 @@ watchEffect(() => {
         <LanguageSwitch v-model="locale" :label="appMessage('language.switch')" />
       </nav>
     </header>
+
+    <AppBreadcrumbs />
 
     <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
       <RouterView />
