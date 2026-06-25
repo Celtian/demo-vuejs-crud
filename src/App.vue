@@ -50,7 +50,7 @@ async function loadMessages(nextLocale: Locale) {
     return
   }
 
-  const response = await fetch(`/assets/i18n/${nextLocale}.json`)
+  const response = await fetch(`${import.meta.env.BASE_URL}assets/i18n/${nextLocale}.json`)
 
   if (!response.ok) {
     throw new Error(`Failed to load ${nextLocale} translations.`)
