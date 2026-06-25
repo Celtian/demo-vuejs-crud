@@ -1,29 +1,94 @@
 <script setup lang="ts">
-import { shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import PaginationControls from '@/components/PaginationControls.vue'
 import PostTable from '@/components/posts/PostTable.vue'
 import { usePosts } from '@/composables/usePosts'
-import type { PostListInput } from '@/api/posts'
 
-const searchQuery = shallowRef('')
+const searchDebounceMs = 350
+const itemsPerPageOptions = [5, 10, 25] as const
 const { posts, postCount, isLoading, errorMessage, loadPosts } = usePosts()
+const route = useRoute()
+const router = useRouter()
+const searchInput = shallowRef('')
+let searchDebounceId: ReturnType<typeof setTimeout> | undefined
 
-const listInput = {
-  page: 1,
-  limit: 10,
-  sort: 'id',
-  order: 'asc',
-} satisfies Omit<PostListInput, 'query'>
+function getQueryValue(value: unknown) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+function getPositiveNumber(value: unknown, fallback: number) {
+  const parsedValue = Number(getQueryValue(value))
+
+  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+    return fallback
+  }
+
+  return parsedValue
+}
+
+const searchQuery = computed(() => String(getQueryValue(route.query.query) ?? ''))
+const pageIndex = computed(() => getPositiveNumber(route.query.pageIndex, 1))
+const pageSize = computed(() => getPositiveNumber(route.query.pageSize, 5))
+const isInitialLoading = computed(() => isLoading.value && posts.value.length === 0)
 
 watch(
   searchQuery,
-  async (query) => {
+  (query) => {
+    searchInput.value = query
+  },
+  { immediate: true },
+)
+
+watch(
+  () => route.query,
+  async () => {
     await loadPosts({
-      ...listInput,
-      query,
+      page: pageIndex.value,
+      limit: pageSize.value,
+      sort: 'id',
+      order: 'asc',
+      query: searchQuery.value,
     })
   },
   { immediate: true },
 )
+
+async function updateListQuery(input: { query?: string; pageIndex?: number; pageSize?: number }) {
+  const nextQuery = input.query ?? searchQuery.value
+
+  await router.replace({
+    query: {
+      pageSize: String(input.pageSize ?? pageSize.value),
+      query: nextQuery || undefined,
+      pageIndex: String(input.pageIndex ?? pageIndex.value),
+    },
+  })
+}
+
+function changePage(page: number) {
+  void updateListQuery({ pageIndex: page })
+}
+
+function changeItemsPerPage(limit: number) {
+  void updateListQuery({ pageIndex: 1, pageSize: limit })
+}
+
+function changeSearchQuery(event: Event) {
+  searchInput.value = (event.target as HTMLInputElement).value
+
+  clearTimeout(searchDebounceId)
+  searchDebounceId = setTimeout(() => {
+    void updateListQuery({
+      query: searchInput.value,
+      pageIndex: 1,
+    })
+  }, searchDebounceMs)
+}
+
+onBeforeUnmount(() => {
+  clearTimeout(searchDebounceId)
+})
 </script>
 
 <template>
@@ -46,10 +111,11 @@ watch(
       <label for="post-search" class="block text-sm font-medium text-slate-700">Search</label>
       <input
         id="post-search"
-        v-model="searchQuery"
+        :value="searchInput"
         type="search"
         class="block w-full max-w-md rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
         placeholder="Search by title or body"
+        @input="changeSearchQuery"
       />
     </div>
 
@@ -61,12 +127,23 @@ watch(
     </p>
 
     <p
-      v-else-if="isLoading"
+      v-else-if="isInitialLoading"
       class="rounded-md border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500"
     >
       Loading posts...
     </p>
 
-    <PostTable v-else :posts="posts" />
+    <div v-else class="space-y-3">
+      <PostTable :posts="posts" />
+      <PaginationControls
+        :page="pageIndex"
+        :items-per-page="pageSize"
+        :total-items="postCount"
+        :items-per-page-options="itemsPerPageOptions"
+        :disabled="isLoading"
+        @page-change="changePage"
+        @items-per-page-change="changeItemsPerPage"
+      />
+    </div>
   </section>
 </template>

@@ -27,7 +27,9 @@ function submitForm() {
 <template>
   <form class="space-y-5" @submit.prevent="submitForm">
     <div class="space-y-2">
-      <label for="post-title" class="block text-sm font-medium text-slate-700">Title</label>
+      <label for="post-title" class="block text-sm font-medium text-slate-700">
+        Title <span class="text-rose-700" aria-hidden="true">*</span>
+      </label>
       <input
         id="post-title"
         v-model="form.title"
@@ -39,7 +41,9 @@ function submitForm() {
     </div>
 
     <div class="space-y-2">
-      <label for="post-body" class="block text-sm font-medium text-slate-700">Body</label>
+      <label for="post-body" class="block text-sm font-medium text-slate-700">
+        Body <span class="text-rose-700" aria-hidden="true">*</span>
+      </label>
       <textarea
         id="post-body"
         v-model="form.body"
