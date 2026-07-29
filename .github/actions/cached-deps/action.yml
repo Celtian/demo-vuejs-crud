@@ -1,5 +1,5 @@
 name: Get & Cache Dependencies
-description: Get dependencies via npm and cache them
+description: Get dependencies via Bun and cache them
 inputs:
   caching:
     description: Whether to cache dependencies or not
@@ -18,19 +18,19 @@ runs:
       uses: actions/cache@v6
       with:
         path: node_modules
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
         restore-keys: |
-          ${{ runner.os }}-npm-
+          ${{ runner.os }}-bun-
           ${{ runner.os }}-
 
     - name: Install
       if: steps.cache.outputs.cache-hit != 'true' || inputs.caching != 'true'
       id: install
-      run: npm ci
+      run: bun ci
       shell: bash
 
     - name: Prepare
       if: steps.cache.outputs.cache-hit == 'true' && inputs.caching == 'true'
       id: prepare
-      run: npm run prepare --if-present
+      run: bun run --if-present prepare
       shell: bash

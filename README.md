@@ -11,10 +11,10 @@
 
 ## ⚙️ Instalation
 
-Definitely works with Node `>=24.12.0` and npm `>=11.0.0`.
+Definitely works with Node `>=24.12.0 <26` and Bun `>=1.3.14`.
 
 ```sh
-npm install
+bun install
 ```
 
 Consider installing VS Code with the recommended extensions in `.vscode/extensions.json` before you start.
@@ -24,31 +24,31 @@ Consider using `WSL` if you are developing on `Windows` to prevent unsupported c
 ## 🖥️ Development Server
 
 ```sh
-npm run dev
+bun run dev
 ```
 
 ## 🏗️ Build
 
 ```sh
-npm run build
+bun run build
 ```
 
 ## 🧪 Tests
 
 ```sh
-npm run test:unit
+bun run test:unit
 ```
 
 ## 🔎 Lint
 
 ```sh
-npm run lint
+bun run lint
 ```
 
 ## 🧹 Format
 
 ```sh
-npm run format
+bun run format
 ```
 
 ## 🚀 Deploy

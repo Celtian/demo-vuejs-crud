@@ -1,1 +1,1 @@
-npx --no -- lint-staged
+bunx --no-install lint-staged --relative
